@@ -13,9 +13,16 @@ module.exports.bootstrap = () => {
 
   //TODO: Needs Refactor
   const settingsPath = getAbsolutePath('data/settings.json');
-  const settings = getJson(settingsPath);
+  let settings = getJson(settingsPath);
   if (!settings) {
-    saveJson(settingsPath, {});
+    settings = {
+      provider: {
+        mainnet: 'https://www.ethercluster.com/etc',
+        testnet:
+          'https://rinkeby.infura.io/v3/4fa24f5f832a4ef684f3ac124da90c9e',
+      },
+    };
+    saveJson(settingsPath, settings);
   }
 
   //TODO: Needs Refactor
