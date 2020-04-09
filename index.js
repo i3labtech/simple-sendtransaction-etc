@@ -18,7 +18,7 @@ program
   .command('send <data>')
   .option(`-t, --testnet`, 'Direciona transação para rede de teste')
   .description('Registra informações em uma transação')
-  .action(async (data, isTestnet) => {
+  .action(async (data, { testnet }) => {
     const settings = getJson(getAbsolutePath('data/settings.json'));
     let pkey = null;
     if (!settings || !settings.privateKey) {
@@ -39,7 +39,7 @@ program
       pkey = settings.privateKey;
     }
 
-    const network = !isTestnet
+    const network = !testnet
       ? settings.provider.mainnet
       : settings.provider.testnet;
 
@@ -53,6 +53,7 @@ program
         date: dateNow,
         tx: txReceipt,
         message: data,
+        network: testnet ? "testnet" : "classic"
       };
 
       let tx = getJson(getAbsolutePath('data/tx.json'));

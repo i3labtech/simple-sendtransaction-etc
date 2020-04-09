@@ -5,7 +5,8 @@ module.exports.log = (type, message) => {
   const newLog = {
     date: new Date(),
     type,
-    message,
+    message
   };
+  log = [newLog, ...log];
   saveJson(getAbsolutePath('data/log.json'), log);
 };
