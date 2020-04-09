@@ -15,9 +15,10 @@ bootstrap();
 program.version(package.version);
 
 program
-  .command('send [data]')
+  .command('send <data>')
+  .option(`-t, --testnet`, 'Direciona transação para rede de teste')
   .description('Registra informações em uma transação')
-  .action(async (data) => {
+  .action(async (data, isTestnet) => {
     const settings = getJson(getAbsolutePath('data/settings.json'));
     let pkey = null;
     if (!settings || !settings.privateKey) {
@@ -38,8 +39,12 @@ program
       pkey = settings.privateKey;
     }
 
+    const network = !isTestnet
+      ? settings.provider.mainnet
+      : settings.provider.testnet;
+
     try {
-      const txReceipt = await ethereum.registerTransaction(pkey, data);
+      const txReceipt = await ethereum.registerTransaction(network, pkey, data);
       const dateNow = new Date();
       log('tx', txReceipt);
       messages.successTx(txReceipt);
@@ -60,16 +65,23 @@ program
   });
 
 program
-  .command('balance [account]')
+  .command('balance <account>')
+  .option(`-t, --testnet`, 'Direciona transação para rede de teste', () => true)
   .description('Consulta saldo de uma carteira')
-  .action(async (account) => {
-    const balance = await ethereum.getBalance(account);
+  .action(async (account, { testnet }) => {
+    const settings = getJson(getAbsolutePath('data/settings.json'));
+
+    const network = !testnet
+      ? settings.provider.mainnet
+      : settings.provider.testnet;
+
+    const balance = await ethereum.getBalance(network, account);
     messages.balance(balance);
   });
 
 program
-  .command('import [private key]')
-  .description('Salva em memória a chave privada')
+  .command(`import <private_key>`)
+  .description('Importa sua chave privada')
   .action(async (privateKey) => {
     const settings = getJson(getAbsolutePath('data/settings.json'));
     if (settings.privateKey) {
@@ -84,32 +96,123 @@ program
       if (!overridepvtk) return;
     }
 
-    settings.privateKey = privateKey;
-    saveJson(getAbsolutePath('data/settings.json'), settings);
-  });
-
-program
-  .command('clearkey')
-  .description('Limpa da memória a chave privada')
-  .action(async () => {
-    let { clearprvk } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'clearprvk',
-        message: 'Tem certeza que deseja limpar a chave privada?',
-      },
-    ]);
-
-    if (clearprvk) {
-      const settings = getJson(getAbsolutePath('data/settings.json'));
-      delete settings.privateKey;
+    try {
+      const publickey = await ethereum.getPublicKey(privateKey);
+      settings.privateKey = privateKey;
+      settings.publickey = publickey;
+      messages.successImportKey(publickey);
       saveJson(getAbsolutePath('data/settings.json'), settings);
+    } catch (error) {
+      messages.error(error);
     }
   });
 
 program
-  .command('provider')
-  .description('Limpa da memória a chave privada')
-  .action(() => {});
+  .command('export <folderPath>')
+  .description('Exporta base de dados ')
+  .option('-p, --privatekey', 'Exportar chave privada', () => true)
+  .option('-t, --txs', 'Exportar registros de transações', () => true)
+  .option('-l, --logs', 'Exportar logs da aplicação', () => true)
+  .action(async (pathDestination, { privatekey, txs, logs }) => {
+    console.log(privatekey, txs, logs);
+
+    if (privatekey) {
+      const settings = getJson(getAbsolutePath('data/settings.json'));
+      if (settings && settings.privateKey) {
+        const keys = {
+          privateKey: settings.privateKey,
+          publicKey: settings.publicKey,
+        };
+        saveJson(getAbsolutePath(`${pathDestination}/privatekey.bkp`), keys);
+      } else {
+        messages.notFoundPrivateKey();
+      }
+    }
+    if (txs) {
+      const tx = getJson(getAbsolutePath('data/tx.json'));
+      if (tx) {
+        saveJson(getAbsolutePath(`${pathDestination}/tx.bkp`), tx);
+      } else {
+        messages.notFoundTxFile();
+      }
+    }
+    if (logs) {
+      const log = getJson(getAbsolutePath('data/log.json'));
+      if (log) {
+        saveJson(getAbsolutePath(`${pathDestination}/log.bkp`), log);
+      } else {
+        messages.notFoundLogFile();
+      }
+    }
+
+    // let { clearprvk } = await inquirer.prompt([
+    //   {
+    //     type: 'confirm',
+    //     name: 'clearprvk',
+    //     message: 'Tem certeza que deseja limpar a chave privada?',
+    //   },
+    // ]);
+
+    // if (clearprvk) {
+    //   const settings = getJson(getAbsolutePath('data/settings.json'));
+    //   delete settings.privateKey;
+    //   saveJson(getAbsolutePath('data/settings.json'), settings);
+    // }
+  });
+
+program
+  .command('clear')
+  .description('Limpa base de dados ')
+  .option('-p, --privatekey', 'Limpa chave privada', () => true)
+  .option('-t, --txs', 'Limpa registros de transações', () => true)
+  .option('-l, --logs', 'Limpa logs da aplicação', () => true)
+  .action(async ({ privatekey, txs, logs }) => {
+    if (privatekey) {
+      let { clearprvk } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'clearprvk',
+          message: 'Tem certeza que deseja limpar a chave privada?',
+        },
+      ]);
+
+      if (clearprvk) {
+        let settings = getJson(getAbsolutePath('data/settings.json'));
+        delete settings.privateKey;
+        delete settings.publickey;
+        saveJson(getAbsolutePath('data/settings.json'), settings);
+      }
+    }
+    if (txs) {
+      let { cleartxs } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'cleartxs',
+          message: 'Tem certeza que deseja limpar as transações ?',
+        },
+      ]);
+
+      if (cleartxs) {
+        let txs = getJson(getAbsolutePath('data/tx.json'));
+        txs = [];
+        saveJson(getAbsolutePath('data/tx.json'), txs);
+      }
+    }
+    if (logs) {
+      let { clearlogs } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'clearlogs',
+          message: 'Tem certeza que deseja limpar os log ?',
+        },
+      ]);
+
+      if (clearlogs) {
+        let log = getJson(getAbsolutePath('data/log.json'));
+        log = [];
+        saveJson(getAbsolutePath('data/log.json'), log);
+      }
+    }
+  });
 
 program.parse(process.argv);
