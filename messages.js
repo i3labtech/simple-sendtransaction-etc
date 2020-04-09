@@ -15,7 +15,7 @@ module.exports.balance = (balance) => {
 
 module.exports.needsPrivateKey = () => {
   console.log(
-    `${chalk.yellowBright(`É necessário informar a sua chave privada`)}`
+    `${chalk.yellowBright(`É necessário informar a sua chave privada.`)}`
   );
 };
 
@@ -25,6 +25,18 @@ module.exports.errorNeedsPrivateKey = () => {
       `Você precisa informar a chave privada. Encerrando aplicação...`
     )}`
   );
+};
+
+module.exports.notFoundPrivateKey = () => {
+  console.log(`${chalk.yellowBright(`Não existe chave privada registrada.`)}`);
+};
+
+module.exports.notFoundLogFile = () => {
+  console.log(`${chalk.yellowBright(`Não existe arquivo de log.`)}`);
+};
+
+module.exports.notFoundTxFile = () => {
+  console.log(`${chalk.yellowBright(`Não existe arquivo de transações.`)}`);
 };
 
 module.exports.error = (error) => {
@@ -38,5 +50,13 @@ module.exports.error = (error) => {
 module.exports.successTx = (tx) => {
   console.log(
     `${chalk.greenBright(`Transação realizada com sucesso. Hash: ${tx}`)}`
+  );
+};
+
+module.exports.successImportKey = (publicKey) => {
+  console.log(
+    `${chalk.greenBright(
+      `Chave privada importada com suesso. Chave Publica: ${publicKey}`
+    )}`
   );
 };
