@@ -1,11 +1,6 @@
 const { join } = require('path');
 const fs = require('fs');
 
-const datastorage = './data';
-if (!fs.existsSync(datastorage)) {
-  fs.mkdirSync(datastorage);
-}
-
 module.exports.getAbsolutePath = (relativePath) => {
   return join(__dirname, relativePath);
 };
@@ -21,3 +16,8 @@ module.exports.getJson = (path) => {
     return [];
   }
 };
+
+const datastorage = this.getAbsolutePath('data');
+if (!fs.existsSync(datastorage)) {
+  fs.mkdirSync(datastorage);
+}
