@@ -115,7 +115,6 @@ program
   .option('-t, --txs', 'Exportar registros de transações', () => true)
   .option('-l, --logs', 'Exportar logs da aplicação', () => true)
   .action(async (pathDestination, { privatekey, txs, logs }) => {
-    console.log(privatekey, txs, logs);
 
     if (privatekey) {
       const settings = getJson(getAbsolutePath('data/settings.json'));
@@ -124,7 +123,7 @@ program
           privateKey: settings.privateKey,
           publicKey: settings.publicKey,
         };
-        saveJson(getAbsolutePath(`${pathDestination}/privatekey.bkp`), keys);
+        saveJson(`${pathDestination}/privatekey.bkp`, keys);
       } else {
         messages.notFoundPrivateKey();
       }
@@ -132,7 +131,7 @@ program
     if (txs) {
       const tx = getJson(getAbsolutePath('data/tx.json'));
       if (tx) {
-        saveJson(getAbsolutePath(`${pathDestination}/tx.bkp`), tx);
+        saveJson(`${pathDestination}/tx.bkp`, tx);
       } else {
         messages.notFoundTxFile();
       }
@@ -140,25 +139,11 @@ program
     if (logs) {
       const log = getJson(getAbsolutePath('data/log.json'));
       if (log) {
-        saveJson(getAbsolutePath(`${pathDestination}/log.bkp`), log);
+        saveJson(`${pathDestination}/log.bkp`, log);
       } else {
         messages.notFoundLogFile();
       }
     }
-
-    // let { clearprvk } = await inquirer.prompt([
-    //   {
-    //     type: 'confirm',
-    //     name: 'clearprvk',
-    //     message: 'Tem certeza que deseja limpar a chave privada?',
-    //   },
-    // ]);
-
-    // if (clearprvk) {
-    //   const settings = getJson(getAbsolutePath('data/settings.json'));
-    //   delete settings.privateKey;
-    //   saveJson(getAbsolutePath('data/settings.json'), settings);
-    // }
   });
 
 program
