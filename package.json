@@ -1,6 +1,6 @@
 {
   "name": "simple-sendtransaction-etc",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "CLI para realizar registros genéricos através do campo data em uma transação Ethereum",
   "main": "index.js",
   "scripts": {
