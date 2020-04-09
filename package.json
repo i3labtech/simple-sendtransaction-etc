@@ -1,0 +1,37 @@
+{
+  "name": "simple-sendtransaction-etc",
+  "version": "1.0.0",
+  "description": "CLI para realizar registros genéricos através do campo data em uma transação Ethereum",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "etc": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/i3labtech/simple-sendtransaction-etc.git"
+  },
+  "keywords": [
+    "etc",
+    "blockchain",
+    "register",
+    "ethereumclassic",
+    "realethereum"
+  ],
+  "author": "JC Bombardelli",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/i3labtech/simple-sendtransaction-etc/issues"
+  },
+  "homepage": "https://github.com/i3labtech/simple-sendtransaction-etc#readme",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "commander": "^2.19.0",
+    "ethers": "^4.0.46",
+    "figlet": "^1.2.1",
+    "inquirer": "^6.2.2"
+  }
+}
