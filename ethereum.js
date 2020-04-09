@@ -11,7 +11,7 @@ module.exports.registerTransaction = async (network, key, message) => {
 
     const tx = await wallet.sendTransaction({
       to: wallet.address,
-      data: messageHex,
+      data: messageHex
     });
 
     const receipt = await tx.wait();
@@ -22,14 +22,11 @@ module.exports.registerTransaction = async (network, key, message) => {
 };
 
 module.exports.getBalance = async (network, address) => {
-  try {
-    const provider = new providers.JsonRpcProvider(network);
+  const provider = new providers.JsonRpcProvider(network);
 
-    let balance = await provider.getBalance(address);
-    return utils.formatEther(balance);
-  } catch (error) {
-    throw error;
-  }
+  const balance = await provider.getBalance(address);
+  // TODO: Possivel problema com trycatch
+  return utils.formatEther(balance);
 };
 
 module.exports.getPublicKey = async (privateKey) => {
